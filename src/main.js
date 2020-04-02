@@ -13,7 +13,11 @@ Vue.use(IconsPlugin);
 import axios from "axios";
 import VueAxios from "vue-axios";
 
-axios.defaults.baseURL = "http://localhost:3000/api";
+//local
+// axios.defaults.baseURL = "http://localhost:3000/api";
+
+//pre
+axios.defaults.baseURL = "https://mevn-notes.herokuapp.com/api";
 
 Vue.use(VueAxios, axios);
 
