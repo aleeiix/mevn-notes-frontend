@@ -8,31 +8,50 @@
       :variant="message.color"
       @dismissed="dismissCountDown = 0"
       @dismiss-count-down="countDownChanged"
-    >{{ message.text }}</b-alert>
+      >{{ message.text }}</b-alert
+    >
 
     <form @submit.prevent="addNote()" v-if="!editMode">
       <h3>Add a new note</h3>
-      <input type="text" class="form-control my-2" placeholder="Name" v-model="newNote.name" />
+      <input
+        type="text"
+        class="form-control my-2"
+        placeholder="Name"
+        v-model="newNote.name"
+      />
       <input
         type="text"
         class="form-control my-2"
         placeholder="Description"
         v-model="newNote.description"
       />
-      <b-button class="btn-success btn-block mt-2 mb-4" type="submit">Add</b-button>
+      <b-button class="btn-success btn-block mt-2 mb-4" type="submit"
+        >Add</b-button
+      >
     </form>
 
     <form @submit.prevent="updateNote()" v-if="editMode">
       <h3>Edit a note</h3>
-      <input type="text" class="form-control my-2" placeholder="Name" v-model="editNote.name" />
+      <input
+        type="text"
+        class="form-control my-2"
+        placeholder="Name"
+        v-model="editNote.name"
+      />
       <input
         type="text"
         class="form-control my-2"
         placeholder="Description"
         v-model="editNote.description"
       />
-      <b-button class="btn-warning btn-block mt-2 mb-2" type="submit">Edit</b-button>
-      <b-button class="btn-default btn-block mt-2 mb-4" @click="cancelEditMode()">Cancel</b-button>
+      <b-button class="btn-warning btn-block mt-2 mb-2" type="submit"
+        >Edit</b-button
+      >
+      <b-button
+        class="btn-default btn-block mt-2 mb-4"
+        @click="cancelEditMode()"
+        >Cancel</b-button
+      >
     </form>
 
     <table class="table">
@@ -50,8 +69,14 @@
           <td>{{ note.name }}</td>
           <td>{{ note.description }}</td>
           <td>
-            <b-button class="btn-sm btn-warning mr-2" @click="activeEditMode(note._id)">Edit</b-button>
-            <b-button class="btn-sm btn-danger" @click="deleteNote(note._id)">Delete</b-button>
+            <b-button
+              class="btn-sm btn-warning mr-2"
+              @click="activeEditMode(note._id)"
+              >Edit</b-button
+            >
+            <b-button class="btn-sm btn-danger" @click="deleteNote(note._id)"
+              >Delete</b-button
+            >
           </td>
         </tr>
       </tbody>
@@ -60,6 +85,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
   name: "Notes",
   data() {
@@ -67,49 +93,60 @@ export default {
       notes: [],
       newNote: {
         name: "",
-        description: ""
+        description: "",
       },
       editNote: {
         _id: "",
         name: "",
-        description: ""
+        description: "",
       },
       message: {
         text: "",
-        color: ""
+        color: "",
       },
       editMode: false,
       dismissSecs: 5,
-      dismissCountDown: 0
+      dismissCountDown: 0,
     };
+  },
+  computed: {
+    ...mapGetters(["token"]),
   },
   created() {
     this.getNotes();
   },
   methods: {
+    getConfigAxios() {
+      const config = {
+        headers: {
+          Authorization: this.token,
+        },
+      };
+      return config;
+    },
     getNotes() {
       this.axios
-        .get("/note")
-        .then(res => {
+        .get("/note", this.getConfigAxios())
+        .then((res) => {
           this.notes = res.data;
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err.response);
           this.createAlertAndShow("Error", "danger");
         });
     },
     addNote() {
       this.axios
-        .post("/note", this.newNote)
-        .then(res => {
+        .post("/note", this.newNote, this.getConfigAxios())
+        .then((res) => {
           this.notes.push(res.data);
           this.newNote = {
             name: "",
-            description: ""
+            description: "",
           };
           this.createAlertAndShow("Added note", "success");
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err.response);
           if (err.response.data.error.errors.name.message) {
             this.createAlertAndShow(
@@ -123,13 +160,13 @@ export default {
     },
     deleteNote(id) {
       this.axios
-        .delete(`/note/${id}`)
-        .then(res => {
-          this.notes = this.notes.filter(note => note._id !== res.data._id);
+        .delete(`/note/${id}`, this.getConfigAxios())
+        .then((res) => {
+          this.notes = this.notes.filter((note) => note._id !== res.data._id);
 
           this.createAlertAndShow("Note removed", "success");
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err.response);
           if (err.response.data.message) {
             this.createAlertAndShow(err.response.data.message, "danger");
@@ -142,10 +179,10 @@ export default {
       this.editMode = true;
       this.axios
         .get(`/note/${id}`)
-        .then(res => {
+        .then((res) => {
           this.editNote = res.data;
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
         });
     },
@@ -154,14 +191,14 @@ export default {
       this.editNote = {
         _id: "",
         name: "",
-        description: ""
+        description: "",
       };
     },
     updateNote() {
       this.axios
-        .put(`/note/${this.editNote._id}`, this.editNote)
-        .then(res => {
-          this.notes = this.notes.map(note => {
+        .put(`/note/${this.editNote._id}`, this.editNote, this.getConfigAxios())
+        .then((res) => {
+          this.notes = this.notes.map((note) => {
             if (note._id === res.data._id) {
               return res.data;
             }
@@ -170,7 +207,7 @@ export default {
           this.cancelEditMode();
           this.createAlertAndShow("Note edited", "success");
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
           if (err.response.data.message) {
             this.createAlertAndShow(err.response.data.message, "danger");
@@ -189,8 +226,8 @@ export default {
     },
     countDownChanged(dismissCountDown) {
       this.dismissCountDown = dismissCountDown;
-    }
-  }
+    },
+  },
 };
 </script>
 
