@@ -2,21 +2,14 @@
   <div class="container">
     <h1>Login</h1>
     <form @submit.prevent="login">
-      <input
-        type="email"
-        placeholder="Email"
-        class="form-control my-2"
-        v-model="user.email"
-      />
+      <input type="email" placeholder="Email" class="form-control my-2" v-model="user.email" />
       <input
         type="password"
         placeholder="Password"
         class="form-control my-2"
         v-model="user.password"
       />
-      <b-button class="btn-block" type="submit" variant="success"
-        >To access</b-button
-      >
+      <b-button class="btn-block" type="submit" variant="success">To access</b-button>
     </form>
     <div v-if="message" class="mt-2">
       <small class="text-danger">{{ message }}</small>
@@ -32,9 +25,9 @@ export default {
     return {
       user: {
         email: "",
-        password: "",
+        password: ""
       },
-      message: null,
+      message: null
     };
   },
   methods: {
@@ -42,16 +35,17 @@ export default {
     login() {
       this.axios
         .post("/login", this.user)
-        .then((result) => {
+        .then(result => {
           const token = result.data.token;
           this.message = null;
           this.saveUser(token);
+          this.$router.push({ name: "Notes" });
         })
-        .catch((err) => {
+        .catch(err => {
           this.message = err.response.data.message;
         });
-    },
-  },
+    }
+  }
 };
 </script>
 

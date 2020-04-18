@@ -9,7 +9,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    token: null,
+    token: localStorage.getItem("token") || null,
     user: null,
   },
   getters: {
@@ -38,7 +38,6 @@ export default new Vuex.Store({
     saveUser({ commit }, payload) {
       localStorage.setItem("token", payload);
       commit("setUser", payload);
-      router.push({ name: "Notes" });
     },
     logout({ commit }) {
       localStorage.removeItem("token");
